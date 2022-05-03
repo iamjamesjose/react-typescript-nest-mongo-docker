@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  expense-fe:
+    container_name: expense-fe
+    build:
+      context: ./
+      dockerfile: dev.Dockerfile
+      args:
+        - GPR_TOKEN
+    command: ['npm','run','start']
+    restart:
+    volumes:
+      - ./src:/app/src
+      - ./src:/app/src
+    ports:
+      - 3000:3000
