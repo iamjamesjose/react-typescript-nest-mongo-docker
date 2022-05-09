@@ -4,14 +4,65 @@ services:
   expense-fe:
     container_name: expense-fe
     build:
-      context: ./
+      context: ./expense-fe
       dockerfile: dev.Dockerfile
-      args:
-        - GPR_TOKEN
+      # args:
+      #   - ANY_TOKEN
     command: ['npm','run','start']
-    restart:
+    restart: on-failure
     volumes:
-      - ./src:/app/src
-      - ./src:/app/src
+      - ./expense-fe/src:/app/src:delegate
+      - ./expense-fe/public:/app/public:delegate
     ports:
       - 3000:3000
+    environment:
+      VIRTUAL_HOST: 'fe.expense.docker'
+    networks:
+      - expense-manger
+
+  expense-be:
+    container_name: expense-be
+    build:
+      context: ./expense-be
+      dockerfile: dev.Dockerfile
+      # args:
+      #   - ANY_TOKEN
+    command: ['npm','run','start:dev']
+    restart: on-failure
+    depends_on:
+      - db-mongo-service
+    volumes:
+      - ./expense-be/src:/app/src:delegate
+    ports:
+      - 3001:3001
+    environment:
+      VIRTUAL_HOST: 'be.expense.docker'
+    networks:
+      - expense-manger
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: password
+    ports:
+    - 27017:27017
+    restart: unless-stopped
+    networks:
+    - expense-manger
+  mongo-express-ui:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    depends_on:
+      - mongodb
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: password
+      ME_CONFIG_MONGODB_SERVER: mongodb
+    networks:
+    - expense-manger
+    
+networks:
+  expense-manger:
