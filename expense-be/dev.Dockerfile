@@ -3,7 +3,7 @@ FROM node:16-alpine AS builder
 WORKDIR /app
 RUN adduser -S app
 # Cache and Install dependencies
-COPY ./package-lock.json ./package.json ./tsconfig.build.json  ./tsconfig.json ./nest-cli.json ./
+COPY ./package-lock.json ./package.json ./tsconfig.build.json ./tsconfig.json ./nest-cli.json ./
 RUN npm ci --no-save
 # Copy app files
 COPY . .
